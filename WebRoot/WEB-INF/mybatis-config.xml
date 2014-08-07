@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 
+	<settings>
+		<setting name="cacheEnabled" value="true"/>
+	</settings>	
+	 -->
+	
+	<typeAliases>
+		<!-- user -->
+		<typeAlias alias="UserBase" type="com.hyf.prince.domain.UserBase" />
+		<typeAlias alias="UserInfo" type="com.hyf.prince.domain.UserInfo" />
+		<typeAlias alias="LoginChange" type="com.hyf.prince.domain.LoginChange" />
+		<typeAlias alias="UserToken" type="com.hyf.prince.domain.UserToken" />
+		
+		<!-- message -->
+		<typeAlias alias="Message" type="com.hyf.prince.domain.Message"/>
+		<typeAlias alias="MessageBox" type="com.hyf.prince.domain.MessageBox"/>
+		<typeAlias alias="MessageLine" type="com.hyf.prince.domain.MessageLine"/>
+		<typeAlias alias="FrontMessage" type="com.hyf.prince.result.FrontMessage"/>
+		
+		<!-- activity -->
+		<typeAlias alias="Activity" type="com.hyf.prince.domain.Activity"/>
+		<typeAlias alias="ActivityMember" type="com.hyf.prince.domain.ActivityMember"/>
+		<typeAlias alias="ActivityComment" type="com.hyf.prince.domain.ActivityComment"/>
+		<typeAlias alias="ActivityAttach" type="com.hyf.prince.domain.ActivityAttach"/>
+		
+		<!-- file -->
+		<typeAlias alias="HyfFile" type="com.hyf.prince.domain.HyfFile"/>
+	</typeAliases>
+	
+   <!--  <plugins>  
+       <plugin interceptor="com.rtx.ents.dao.interceptor.EntsDaoInterceptor">  
+           <property name="databaseType" value="postgres"/>  
+       </plugin>  
+    </plugins>   -->
+    	
+	<mappers>
+		<mapper resource="com/hyf/prince/dao/mapper/userMapper.xml" />
+		<mapper resource="com/hyf/prince/dao/mapper/messageMapper.xml" />
+		<mapper resource="com/hyf/prince/dao/mapper/activityMapper.xml" />
+		<mapper resource="com/hyf/prince/dao/mapper/fileMapper.xml" />
+	</mappers>
+	
+</configuration>		
+			

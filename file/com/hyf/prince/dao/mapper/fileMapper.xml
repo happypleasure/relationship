@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyf.prince.dao.IFileDao">
+	   <insert id="insertFile"
+	   				 parameterType="HyfFile"
+	   				      useGeneratedKeys="true"
+									keyProperty="fileId">
+				insert into t_file(
+						file_name ,
+						file_path ,
+						file_size ,
+						file_ext  ,
+						upload_time ,
+						upload_user_id 
+			    )
+				 values(
+				 		#{fileName},
+				 		#{filePath},
+				 		#{fileSize},
+				 		#{fileExt},
+				 		#{uploadTime},
+				 		#{uploadUserId}
+				 )
+	   	</insert>
+	   	
+	   	<insert id="insertFileAttach" 
+	   				 parameterType="ActivityAttach">
+	   		insert into t_activity_attach(
+	   			activity_id ,
+	   			user_id ,
+	   			attach_id ,
+	   			upload_time
+	   		)
+	   		values(
+	   			#{activityId},
+	   			#{userId},
+	   			#{attachId},
+	   			#{uploadTime}
+	   		)
+	   	</insert>
+	   	
+	   	<select id="getPathByAttachId" 
+	   				parameterType="java.lang.Integer"
+	   				resultType="java.lang.String">
+	   		select file_path
+	   		from t_file
+	   		where file_id=#{attachId}
+	   	</select>
+	   	
+	   	<update id="updateFile" 
+	   					parameterType="HyfFile">
+	   		update t_file
+	   			<set>
+	   				<if test="fileName!=null">file_name=#{fileName},</if>
+	   				<if test="fileSize!=null">file_size=#{fileSize},</if>
+	   				<if test="fileExt!=null">file_ext=#{fileExt},</if>
+	   				<if test="uploadTime!=null">upload_time=#{uploadTime},</if>
+	   				<if test="uploadUserId!=null">upload_user_id=#{uploadUserId},</if>
+	   				<if test="filePath!=null">file_path=#{filePath},</if>
+	   			</set>
+	   			where file_id = #{fileId}
+	   	</update>
+</mapper>

@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>cometd</title>
+<script type="text/javascript" src='jquery-1.7.1.js'></script>
+<script type="text/javascript" src='json2.js'></script>
+<script type="text/javascript" src='cometd.js'></script>
+<script type="text/javascript" src='jquery.cometd.js'></script>
+<script type="text/javascript" src='application.js'></script>
+
+<script type="text/javascript">
+	$(function(){
+		var url="http://localhost:8080/relationship/cometd";
+		$.cometd.websocketEnabled = false;
+		$.cometd.configure({
+			url:url,
+			logLevel: 'debug'
+		});
+		$.cometd.handshake();
+        $.cometd.addListener('/meta/handshake', function(){});
+        $.cometd.addListener('/meta/connect', function(){});
+		$.cometd.subscribe('/relationship/dynamic', function(msg) {
+			alert(JSON.stringify(msg));
+		});
+	});
+</script>
+
+</head>
+<body>
+<!-- <div align="center">
+	<form action="rest/user/uploadphoto" method="post" 
+	        enctype="multipart/form-data">
+		<input type="file" name='file'/>
+		<input type="text" name="wangle"/>
+		<input type="submit" value="submit">
+	</form>
+</div> -->
+</body>
+</html>
