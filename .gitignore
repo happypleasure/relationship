@@ -2,7 +2,9 @@
 bin/
 bin-debug/
 bin-release/
-
+.classes/
+.class
+.project
 # Other files and folders
 .settings/
 
