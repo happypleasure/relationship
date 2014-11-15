@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyf.prince.dao.IUserDao">
+		<select id="isExist" 
+						parameterType="java.lang.String"
+							resultType="java.lang.String" >
+				select register_account
+				from t_user_base
+				where register_account=#{registerAccount}
+		</select>	
+		
+		<insert id="register" 
+							parameterType="UserBase" 
+								useGeneratedKeys="true"
+									keyProperty="userId">
+			insert into t_user_base(register_account,password,register_time)
+						values(#{registerAccount},#{password},#{registerTime})
+		</insert>
+		
+		<insert id="insertLoginChange" 
+							parameterType="LoginChange">
+			insert into t_login_change(user_id , login_coord_x,login_coord_y,last_login_time)
+			values(#{userId},#{loginCoordX},#{loginCoordY},#{lastLoginTime})
+		</insert>
+		
+		<update id="updateUserBase"
+								parameterType="UserBase">
+				update t_user_base
+				<set>
+						<if test="username!=null">user_name=#{username},</if>
+						<if test="age!=null">age=#{age},</if>
+						<if test="sex!=null">sex=#{sex},</if>
+						<if test="signature!=null">signature=#{signature},</if>
+						<if test="photoId!=null">photo_id=#{photoId},</if>
+				</set>
+				where user_id=#{userId}
+		</update>
+		
+		<select id="hasUserInfo" 
+						parameterType="java.lang.Integer"
+							resultType="java.lang.Integer">
+				select user_id
+				from t_user_info
+				where user_id=#{userId}
+		</select>	
+		
+		<insert id="insertUserInfo"
+							parameterType="UserInfo">
+			insert into t_user_info(user_id,mail_address,phone,address,interest,qq,job, birthday)
+			values(#{userId},#{mailAddress},#{phone},#{address},#{interest},#{qqCount},#{job},#{birthday})
+		</insert>
+		
+		<update id="updateUserInfo"
+								parameterType="UserInfo">
+				update t_user_info
+				<set>
+						<if test="mailAddress!=null">mail_address=#{mailAddress},</if>
+						<if test="phone!=null">phone=#{phone},</if>
+						<if test="address!=null">address=#{address},</if>
+						<if test="interest!=null">interest=#{interest},</if>
+							<if test="qqCount!=null">QQ=#{qqCount},</if>
+						<if test="job!=null">job=#{job},</if>
+						<if test="birthday!=null">birthday=#{birthday},</if>
+				</set>
+				where user_id=#{userId}
+		</update>
+		
+		<select id="getUserBaseById"
+							parameterType="java.lang.Integer"
+							resultType="UserBase">
+				select   user_id as userId ,
+							 user_name as username,
+							 age as age,
+							 sex as sex ,
+							 photo_id as photoId,
+							 signature as signature 
+				from t_user_base
+				where user_id=#{userId}
+		</select>
+		
+		<select id="getUserInfoById"
+							parameterType="java.lang.Integer"
+							resultType="UserInfo">
+				select mail_address as mailAddress,
+							phone  as phone , 
+							address as address ,
+							interest as interest ,
+							qq as qqCount ,
+							job as job ,
+							birthday as birthday 
+				from t_user_info
+				where user_id=#{userId}
+		</select>
+		
+		<select id="login"
+						parameterType="UserBase"
+							resultType="UserBase">
+			 select  user_id as userId , 
+			 			user_name as username ,
+			 			age as age , 
+			 			sex as sex , 
+			 			signature as signature,
+			 			photo_id as photoId
+			 from   t_user_base
+			 where register_account=#{registerAccount}
+			 and     password=#{password}
+		</select>
+		
+		<update id="updateLoginChange"
+						parameterType="LoginChange">
+			update t_login_change
+			<set>
+					login_coord_x=#{loginCoordX},
+					login_coord_y=#{loginCoordY},
+					last_login_time=#{lastLoginTime},
+			</set>
+			where user_id=#{userId}
+		</update>
+		
+		<insert id="inserToken" 
+						parameterType="UserToken">
+			insert into t_user_token
+			values(#{token},#{userId})
+		</insert> 
+		
+		<insert id="deleteToken" 
+						parameterType="java.lang.Integer">
+			delete from t_user_token where user_id=#{userId}
+		</insert>
+		
+		<select id="getUserTokenById"
+					parameterType="java.lang.String"
+					resultType="UserToken">
+			select  token      as token ,
+						user_id  as userId
+			from t_user_token
+			where token=#{uriToken}
+		</select>
+		
+		<update id="updatePhotoPath">
+			update t_user_base
+			set photo_id=#{photoId}
+			where user_id=#{userId}
+		</update>
+		
+		<select id="getUserPhotoPath" 
+					parameterType="java.lang.Integer"
+					resultType="java.lang.String">
+				select file_path 
+				from t_file
+				where file_id=#{photoId}
+		</select>
+</mapper>

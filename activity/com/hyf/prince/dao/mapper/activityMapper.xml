@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyf.prince.dao.IActivityDao">
+	   <insert id="insertActivity"
+	   				 parameterType="Activity"
+	   				      useGeneratedKeys="true"
+									keyProperty="activityId">
+				insert into t_activity(
+				 		title,
+				 		type,
+				 		address,
+				 		detail_desc,
+				 		coord_x,
+				 		coord_y,
+				 		sponsor_id,
+				 		max_user_num,
+				 		publish_time,
+				 		plan_start_time,
+				 		zan_num,
+				 		is_delete 
+				 )
+				 values(
+				 		#{title},
+				 		#{type},
+				 		#{address},
+				 		#{description},
+				 		#{coordX},
+				 		#{coordY},
+				 		#{sponsorId},
+				 		#{maxUserNum},
+				 		#{publishTime},
+				 		#{planStartTime},
+				 		#{zanNum},
+				 		#{isDelete}		
+				 )
+	   	</insert>
+	   	
+	   	<insert id="insertMember"
+	   					parameterType="ActivityMember">
+	   		insert into t_activity_member
+	   		values(#{activityId},#{userId},#{role})
+	   	</insert>
+	   	
+	   	<update id="updateActivity"
+	   					 parameterType="Activity">
+	   		 update t_activity
+	   		 	<set>
+	   		 		<if test="title!=null">title=#{title},</if>
+	   		 		<if test="address!=null">address=#{address},</if>
+	   		 		<if test="description!=null">detail_desc=#{description},</if>
+	   		 		<if test="coordX!=null">coord_x=#{coordX},</if>
+	   		 		<if test="coordX!=null">coord_y=#{coordY},</if>
+	   		 		<if test="maxUserNum!=null">max_user_num=#{maxUserNum},</if>
+	   		 		<if test="planStartTime!=null">plan_start_time=#{planStartTime},</if>
+	   		 		<if test="isDelete!=null">is_delete=#{isDelete},</if>
+	   		 		<if test="type!= null">type=#{type}</if>
+	   		 	</set>
+	   		 where activity_id=#{activityId} 
+	   	</update>
+	   	
+	   	<update id="addZanNum"
+	   					parameterType="java.lang.Integer">
+	   		update t_activity set zan_num = zan_num+1
+	   		where activity_id=#{activityId} 
+	   	</update>
+	   	
+	   	<select id="getDetailById" 
+	   					parameterType="java.lang.Integer"
+	   					resultType="Activity">
+	   		select      activity_id as activityId,
+	   					title as title,
+				 		type as type,
+				 		address as address ,
+				 		detail_desc as description ,
+				 		coord_x as coordX,
+				 		coord_y as coordY ,
+				 		sponsor_id as sponsorId,
+				 		max_user_num as  maxUserNum ,
+				 		publish_time as  publishTime ,
+				 		plan_start_time as  planStartTime,
+				 		zan_num as  zanNum 
+	   		from t_activity
+	   		where activity_id=#{activityId}
+	   		and  is_delete=false 
+	   	</select>
+	   	
+	   	<insert id="insertComment" 
+	   			parameterType="ActivityComment">
+	   		insert into t_activity_comment(
+	   						activity_id ,
+	   						user_id , 
+	   						content ,
+	   						create_time
+	   					)
+	   					values(
+	   						#{activityId} ,
+	   						#{userId},
+	   						#{content},
+	   						#{createTime}
+	   					)
+	   	</insert>
+	   	
+	   	<select id="getCommentNum"
+	   					parameterType="java.lang.Integer"
+	   						resultType="java.lang.Integer">
+	   		select  count(*)
+	   		from t_activity_comment
+	   		where activity_id=#{activityId}
+	   	</select>
+	   	
+	   	
+	   	<select id="getAttachNum"
+	   					parameterType="java.lang.Integer"
+	   						resultType="java.lang.Integer">
+	   		select  count(*)
+	   		from t_activity_attach
+	   		where activity_id=#{activityId}
+	   	</select>
+	   	
+	   	<select id="getMemberNum"
+   					parameterType="java.lang.Integer"
+   						resultType="java.lang.Integer">
+	   		select  count(*)
+	   		from t_activity_member
+	   		where activity_id=#{activityId}
+	   	</select>
+	   	
+	   	<select id="getActivityMembers"
+	   					parameterType="java.lang.Integer"
+	   						resultType="UserBase">
+	   		select b.user_id as userId , 
+	   		          b.user_name as username,
+	   		          b.photo_id as photoId
+	   		from t_activity_member a
+	   		join t_user_base b on(a.user_id=b.user_id)
+	   		where a.activity_id=#{activityId}
+	   	</select>
+	   	
+	   	<select id="getActivityComments"
+	   					parameterType="java.lang.Integer"
+	   					resultType="ActivityComment">
+	   	   select   a.user_id as userId , 
+	   		        a.activity_id as activityId,
+	   		        a.content as content ,
+	   		        a.create_time as createTime
+	   		from  t_activity_comment a
+	   		where a.activity_id=#{activityId}
+	   	</select>
+	   	
+	   	<select id="getActivityAttach"
+	   					parameterType="java.lang.Integer"
+	   					resultType="ActivityAttach">
+	   		select attach_id as attachId , 
+	   				  activity_id as activityId
+	   		from t_activity_attach 
+	   		where activity_id=#{activityId}
+	   	</select>
+	   	
+	   	<select id="getArroundActivitys"
+	   					parameterType="Activity"
+	   					  resultType="Activity">
+	   		 select  activity_id as activityId , 
+	   		 			title as title ,
+	   		 			sponsor_id as sponsorId , 
+	   		 			type as type , 
+	   		 			address as address , 
+	   		 			plan_start_time as planStartTime
+	   		 from t_activity
+	   		 where (
+	   		 <![CDATA[
+  				    (coord_x-#{coordX})*(coord_x-#{coordX})+
+   		 			(coord_y-#{coordY})*(coord_y-#{coordY})
+   		 			< #{nearRange}*#{nearRange}
+	   		 ]]>
+	   		 )
+	   		 and  is_delete=false
+	   	</select>
+	   	
+	   	<select id="getSponsorActivitys"
+	   					parameterType="java.lang.Integer"
+	   					  resultType="Activity">
+	   		 select  a.activity_id as activityId , 
+	   		 			a.title as title ,
+	   		 			a.sponsor_id as sponsorId , 
+	   		 			a.type as type , 
+	   		 			a.address as address , 
+	   		 			a.plan_start_time as planStartTime
+	   		 from t_activity a
+	   		 join  t_activity_member b 
+	   		 on(a.activity_id=b.activity_id)
+	   		 where b.user_id=#{currUserId}
+	   		 and    b.role=1
+	   		 and    a.is_delete=false
+	   	</select>
+	   	
+	   	
+	     <select id="getMemberActivitys"
+	   					parameterType="java.lang.Integer"
+	   					  resultType="Activity">
+	   		 select  a.activity_id as activityId , 
+	   		 			a.title as title ,
+	   		 			a.sponsor_id as sponsorId , 
+	   		 			a.type as type , 
+	   		 			a.address as address , 
+	   		 			a.plan_start_time as planStartTime
+	   		 from t_activity a
+	   		 join  t_activity_member b 
+	   		 on(a.activity_id=b.activity_id)
+	   		 where b.user_id=#{currUserId}
+	   		 and    b.role=2
+	   		 and    a.is_delete=false
+	   	</select>
+</mapper>

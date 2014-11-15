@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyf.prince.dao.IMessageDao">
+	<select id="getOneSession"
+					parameterType="MessageBox"
+						resultType="Message">
+			SELECT
+				A .message_id AS messageId,
+				A . CONTENT AS CONTENT,
+				A .send_user_id AS sendUserId,
+				A .receive_user_id AS receiveUserId,
+				A .consist_id AS consistId,
+				A .send_time AS sendTime,
+				b.read_flag AS readFlag
+			FROM
+				t_message A
+			JOIN t_message_box b ON (A .message_id = b.message_id)
+			LEFT JOIN t_message_line C ON (A .consist_id = C .consist_id)
+			WHERE
+				A .consist_id = #{consistId}
+			AND b.user_id = #{userId}
+			AND (
+				(
+					C .user_id IS NULL
+					AND C .delete_line IS NULL
+				)
+				OR (
+					C .user_id = #{userId}
+					AND A .send_time > C .delete_line
+				)
+			)
+			GROUP BY
+				A .message_id,
+				A . CONTENT,
+				A .send_user_id,
+				A .receive_user_id,
+				A .consist_id,
+				A .send_time,
+				b.read_flag
+			ORDER BY
+				A .send_time DESC
+	</select>
+	
+		<insert id="insertMessage" 
+							parameterType="Message" 
+								useGeneratedKeys="true"
+									keyProperty="messageId">
+			insert into t_message(
+			                       content,
+			                       send_user_id,
+			                       receive_user_id,
+			                       consist_id,
+			                       send_time
+			                       )
+						values(#{content},
+						           #{sendUserId},
+						           #{receiveUserId},
+						           #{consistId},
+						           #{sendTime}
+						)
+		</insert>
+		
+	   <insert id="insertMessageBox" 
+					parameterType="MessageBox" >
+			insert into t_message_box(
+			                       consist_id,
+			                       user_id,
+			                       message_id ,
+			                       read_flag 
+			                       )
+						values(#{consistId},
+						           #{userId},
+						           #{messageId},
+						           #{readFlag}
+						)
+		</insert>
+		
+		<update id="updateReadFlag" 
+						parameterType="MessageBox">
+			update t_message_box 
+			set  read_flag=#{readFlag}
+			where user_id=#{userId}
+			and   consist_id=#{consistId}
+			and   read_flag = FALSE
+		</update>
+		
+		<insert id="insertMessageLine" 
+							parameterType="MessageLine">
+			insert into t_message_line(consist_id,user_id,delete_line)
+			values(#{consistId},#{userId},#{deleteLine})
+		</insert>
+		
+		<select id="getDeleteLine" 
+					parameterType="MessageLine"
+					resultType="MessageLine">
+			select consist_id as consistId ,
+				   user_id as userId
+			from t_message_line		
+			where 	consist_id = #{consistId}
+			and     user_id = #{userId}
+		</select>
+		
+		<update id="updateDeleteLine"
+				parameterType="MessageLine">
+			update t_message_line
+			set  delete_line = #{deleteLine}
+			where 	consist_id = #{consistId}
+			and     user_id = #{userId}
+		</update>
+		
+		<select id="getTotalUnReadNum"
+					   parameterType="java.lang.Integer"
+					    resultType="java.lang.Integer">
+				SELECT
+					COUNT (DISTINCT A .message_id)
+				FROM
+					t_message_box A
+				LEFT JOIN t_message_line b ON (A .consist_id = b.consist_id)
+				JOIN t_message C ON (A .message_id = C .message_id)
+				WHERE
+					A .user_id = #{userId}
+				AND A .read_flag = FALSE
+			<![CDATA[AND (
+						b.delete_line IS NULL
+						OR C .send_time > b.delete_line
+					) 
+			]]>			   
+		</select>
+		
+		<select id="getAllSession"
+					   parameterType="java.lang.Integer"
+					    resultType="FrontMessage">
+			SELECT DISTINCT
+				A .consist_id AS consistId,
+				A . CONTENT AS messageContent,
+				A .send_time AS sendTime
+			FROM
+				t_message A
+			JOIN t_message_box b ON (A .message_id = b.message_id)
+			LEFT JOIN t_message_line C ON (A .consist_id = C .consist_id)
+			WHERE
+				b.user_id = #{userId}
+			AND (
+				(
+					C .user_id IS NULL
+					AND C .delete_line IS NULL
+				)
+				OR (
+					C .user_id = #{userId}
+					AND A .send_time > C .delete_line
+				)
+			)
+			AND A .send_time IN (
+				SELECT
+					MAX (send_time)
+				FROM
+					t_message d
+				GROUP BY
+					d.consist_id
+			)
+			ORDER BY
+				A .send_time DESC
+		</select>
+		
+		<select id="getCountByMessageId"
+						parameterType="java.lang.Integer"
+							resultType="java.lang.Integer">
+			select count(*)
+			from t_message_box 
+			where message_id=#{messageId}					
+		</select>
+		
+		<delete id="deleteMessageById"
+						parameterType="java.lang.Integer">
+			delete from t_message
+			where message_id=#{messageId}				
+		</delete>
+		
+		<delete id="deleteMessageBox"
+						parameterType="MessageBox">
+			delete from t_message_box
+			where message_id=#{messageId}
+			and     user_id=#{userId}				
+		</delete>
+		
+		<select id="getOneSessionUnReadNum"
+					   parameterType="MessageBox"
+					   		resultType="java.lang.Integer">
+			 select count(distinct a.message_id)
+			 from t_message_box  a
+			 left join t_message_line b
+			 on(a.consist_id=b.consist_id)
+			 join t_message c
+			 on(a.message_id=c.message_id)
+			 where a.user_id=#{userId}
+			 and    a.consist_id=#{consistId}
+			 and  a.read_flag=false
+			<![CDATA[ and  (b.delete_line is null or c.send_time > b.delete_line) ]]>	
+		</select>
+		
+		<select id="getUserIdBySession"
+					parameterType="java.lang.Integer"
+						resultType="java.lang.Integer">
+			select distinct user_id
+			from t_message_box
+			where consist_id=#{consistId}				
+		</select>
+</mapper>
